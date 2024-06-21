@@ -20,7 +20,7 @@ Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
 Plug 'voldikss/vim-floaterm'
 
 " Синяя тема
-Plug 'rakr/vim-one'
+Plug 'folke/tokyonight.nvim'
 
 " Плагин для проводника файлов
 Plug 'preservim/nerdtree'
@@ -28,9 +28,19 @@ Plug 'preservim/nerdtree'
 " Альтернатива auto-pairs
 Plug 'windwp/nvim-autopairs'
 
-" Airline для статусной строки/вкладок
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Вкладки
+Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
+Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
+Plug 'romgrk/barbar.nvim'
+
+" Add galaxyline plugin
+Plug 'glepnir/galaxyline.nvim'
+Plug 'SmiteshP/nvim-gps'
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'mfussenegger/nvim-dap'
+
+" If you want to display icons, then use one of these plugins:
+Plug 'ryanoasis/vim-devicons'      " vimscript
 
 " Интеграция с Git
 Plug 'tpope/vim-fugitive'
@@ -46,7 +56,10 @@ Plug 'jeetsukumaran/vim-buffergator'
 
 call plug#end()
 
+set encoding=UTF-8
 set number
+syntax on
+colorscheme tokyonight-storm
 
 " Настройки nvim-autopairs
 lua << EOF
@@ -56,6 +69,8 @@ require('nvim-autopairs').setup{
 }
 EOF
 
+lua require('galaxy_line_config')
+
 " Настройки coc.nvim
 " Использовать Tab для вызова автодополнения и навигации
 inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
@@ -63,7 +78,7 @@ inoremap <silent><expr> <S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+      \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Использовать [g и ]g для навигации по диагностике
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
@@ -124,14 +139,6 @@ autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTr
 let g:NERDTreeFileLines = 1
 let g:NERDTreeDirArrowExpandable = '→'
 let g:NERDTreeDirArrowCollapsible = '↓'
-
-" Включение синей темы vim-one
-syntax enable
-set background=dark
-colorscheme one
-
-" Настройки Airline
-let g:airline#extensions#tabline#enabled = 1
 
 " Горячие клавиши для перехода между буферами
 nnoremap <silent> <C-h> :bprevious<CR>
