@@ -126,8 +126,8 @@ require('gitsigns').setup {
 }
 EOF
 
-" Настройка для galaxyline 
-lua require('galaxy_line_config')
+" Настройка для galaxyline
+:luafile ~/AppData/Local/nvim/galaxy_line_config.lua
 
 " Настройки coc.nvim
 " Использовать Tab для вызова автодополнения и навигации
