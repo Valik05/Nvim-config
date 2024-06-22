@@ -64,16 +64,13 @@ set number
 syntax on
 colorscheme tokyonight-storm
 
-" Настройки nvim-autopairs
 lua << EOF
+-- Настройка для nvim-autopairs
 require('nvim-autopairs').setup{ 
     map_cr = true,
     map_complete = true
 }
-EOF
-
-" Настройка Cursor line
-lua << EOF
+-- Настройка для nvim-cursorline
 require('nvim-cursorline').setup {
   cursorline = {
     enable = true,
@@ -86,9 +83,7 @@ require('nvim-cursorline').setup {
     hl = { underline = true },
   }
 }
-EOF
-
-lua << EOF
+-- Настройка git символов изменений
 require('gitsigns').setup {
   signs = {
     add          = { text = '┃' },
@@ -131,6 +126,7 @@ require('gitsigns').setup {
 }
 EOF
 
+" Настройка для galaxyline 
 lua require('galaxy_line_config')
 
 " Настройки coc.nvim
