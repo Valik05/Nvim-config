@@ -43,6 +43,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'sheerun/vim-polyglot'
 Plug 'maxmellon/vim-jsx-pretty'
 Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 
 " Улучшенное комментирование кода
 Plug 'preservim/nerdcommenter'
@@ -60,6 +61,15 @@ colorscheme tokyonight-storm
 " Syntax ts, tsx settings
 let g:typescript_compiler_binary = 'tsc'
 let g:typescript_compiler_options = ''
+
+" set filetypes as typescriptreact
+autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescriptreact
+
+" dark red
+hi tsxTagName guifg=#E06C75
+hi tsxComponentName guifg=#E06C75
+hi tsxCloseComponentName guifg=#E06C75
+hi tsxCloseTagName guifg=#E06C75
 
 " Syntax jsx settings
 let g:vim_jsx_pretty_highlight_close_tag = 1
