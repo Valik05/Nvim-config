@@ -7,15 +7,6 @@ Plug 'tpope/vim-sensible'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neoclide/vim-jsx-improve'
 
-" Поддержка Go
-Plug 'josa42/coc-go', {'do': 'yarn install --frozen-lockfile'}
-
-" Поддержка C++
-Plug 'clangd/coc-clangd', {'do': 'yarn install --frozen-lockfile'}
-
-" Поддержка Rust
-Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
-
 " Плагин для терминала
 Plug 'voldikss/vim-floaterm'
 
@@ -39,7 +30,7 @@ Plug 'SmiteshP/nvim-gps'
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'mfussenegger/nvim-dap'
 
-" If you want to display icons, then use one of these plugins:
+" Icons 
 Plug 'ryanoasis/vim-devicons'      " vimscript
 
 " Cursor line
@@ -50,9 +41,11 @@ Plug 'tpope/vim-fugitive'
 
 " Подсветка синтаксиса
 Plug 'sheerun/vim-polyglot'
+Plug 'maxmellon/vim-jsx-pretty'
+Plug 'leafgarland/typescript-vim'
 
 " Улучшенное комментирование кода
-Plug 'b3nj5m1n/kommentary'
+Plug 'preservim/nerdcommenter'
 
 " Плагин для управления буферами
 Plug 'jeetsukumaran/vim-buffergator'
@@ -63,6 +56,14 @@ set encoding=UTF-8
 set number
 syntax on
 colorscheme tokyonight-storm
+
+" Syntax ts, tsx settings
+let g:typescript_compiler_binary = 'tsc'
+let g:typescript_compiler_options = ''
+
+" Syntax jsx settings
+let g:vim_jsx_pretty_highlight_close_tag = 1
+let g:vim_jsx_pretty_colorful_config = 1 " default 0
 
 lua << EOF
 -- Настройка для nvim-autopairs
@@ -202,9 +203,6 @@ let g:NERDTreeDirArrowCollapsible = '↓'
 nnoremap <silent> <C-h> :bprevious<CR>
 nnoremap <silent> <C-l> :bnext<CR>
 
-" Включение kommentary
-let g:kommentary_create_default_mappings = 1
-
 " Настройки Buffergator
 nnoremap <silent> <leader>bg :BuffergatorOpen<CR>
 
@@ -221,4 +219,8 @@ vnoremap <C-z> <Esc>u
 
 " Map <A-f> to execute the :G command in normal mode
 nnoremap <A-f> =G<CR>
+
+" Toggle comment with Ctrl+/
+nnoremap <silent> <C-_> :call nerdcommenter#Comment('n', 'toggle')<CR>
+vnoremap <silent> <C-_> :call nerdcommenter#Comment('x', 'toggle')<CR>
 
