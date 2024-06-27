@@ -20,7 +20,6 @@ Plug 'preservim/nerdtree'
 Plug 'windwp/nvim-autopairs'
 
 " Вкладки
-Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
 Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
 Plug 'romgrk/barbar.nvim'
 
@@ -32,6 +31,7 @@ Plug 'mfussenegger/nvim-dap'
 
 " Icons 
 Plug 'ryanoasis/vim-devicons'      " vimscript
+Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
 
 " Cursor line
 Plug 'yamatsum/nvim-cursorline'
@@ -51,6 +51,16 @@ Plug 'preservim/nerdcommenter'
 " Плагин для управления буферами
 Plug 'jeetsukumaran/vim-buffergator'
 
+" nvim-cmp and dependencies
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'saadparwaiz1/cmp_luasnip',
+Plug 'L3MON4D3/LuaSnip',
+Plug 'rafamadriz/friendly-snippets',
 call plug#end()
 
 set encoding=UTF-8
@@ -135,59 +145,294 @@ require('gitsigns').setup {
     col = 1
   },
 }
+-- Icons
+require'nvim-web-devicons'.setup {
+ -- your personnal icons can go here (to override)
+ -- you can specify color or cterm_color instead of specifying both of them
+ -- DevIcon will be appended to `name`
+ override = {
+  zsh = {
+    icon = "",
+    color = "#428850",
+    cterm_color = "65",
+    name = "Zsh"
+  }
+ };
+ -- globally enable different highlight colors per icon (default to true)
+ -- if set to false all icons will have the default icon's color
+ color_icons = true;
+ -- globally enable default icons (default to false)
+ -- will get overriden by `get_icons` option
+ default = true;
+ -- globally enable "strict" selection of icons - icon will be looked up in
+ -- different tables, first by filename, and if not found by extension; this
+ -- prevents cases when file doesn't have any extension but still gets some icon
+ -- because its name happened to match some extension (default to false)
+ strict = true;
+ -- same as `override` but specifically for overrides by filename
+ -- takes effect when `strict` is true
+ override_by_filename = {
+  [".gitignore"] = {
+    icon = "",
+    color = "#f1502f",
+    name = "Gitignore"
+  }
+ };
+ -- same as `override` but specifically for overrides by extension
+ -- takes effect when `strict` is true
+ override_by_extension = {
+  ["log"] = {
+    icon = "",
+    color = "#81e043",
+    name = "Log"
+  }
+ };
+ -- same as `override` but specifically for operating system
+ -- takes effect when `strict` is true
+ override_by_operating_system = {
+  ["apple"] = {
+    icon = "",
+    color = "#A2AAAD",
+    cterm_color = "248",
+    name = "Apple",
+  },
+ };
+}
+-- Set up nvim-cmp.
+local cmp = require'cmp'
+
+cmp.setup({
+snippet = {
+  -- REQUIRED - you must specify a snippet engine
+  expand = function(args)
+  --  vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+  require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+  -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+  -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+  -- vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
+  end,
+},
+window = {
+  -- completion = cmp.config.window.bordered(),
+  -- documentation = cmp.config.window.bordered(),
+},
+mapping = cmp.mapping.preset.insert({
+['<C-b>'] = cmp.mapping.scroll_docs(-4),
+['<C-f>'] = cmp.mapping.scroll_docs(4),
+['<C-Space>'] = cmp.mapping.complete(),
+['<C-e>'] = cmp.mapping.abort(),
+['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+}),
+sources = cmp.config.sources({
+{ name = 'nvim_lsp' },
+-- { name = 'vsnip' }, -- For vsnip users.
+ { name = 'luasnip' }, -- For luasnip users.
+-- { name = 'ultisnips' }, -- For ultisnips users.
+-- { name = 'snippy' }, -- For snippy users.
+}, {
+  { name = 'buffer' },
+})
+})
+
+-- To use git you need to install the plugin petertriho/cmp-git and uncomment lines below
+-- Set configuration for specific filetype.
+--[[ cmp.setup.filetype('gitcommit', {
+sources = cmp.config.sources({
+{ name = 'git' },
+}, {
+{ name = 'buffer' },
+})
+})
+require("cmp_git").setup() ]]-- 
+
+-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline({ '/', '?' }, {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = {
+    { name = 'buffer' }
+  }
+  })
+
+-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+  { name = 'path' }
+  }, {
+    { name = 'cmdline' }
+  }),
+  matching = { disallow_symbol_nonprefix_matching = false }
+})
+
+-- Set up lspconfig.
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+require('lspconfig')['<YOUR_LSP_SERVER>'].setup {
+  capabilities = capabilities
+}
 EOF
 
 " Настройка для galaxyline
 :luafile ~/AppData/Local/nvim/galaxy_line_config.lua
 
-" Настройки coc.nvim
-" Использовать Tab для вызова автодополнения и навигации
-inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <silent><expr> <S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" coc nvim settings
+" Some servers have issues with backup files, see #649
+set nobackup
+set nowritebackup
+
+" Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
+" delays and poor user experience
+set updatetime=300
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved
+set signcolumn=yes
+
+" Use tab for trigger completion with characters ahead and navigate
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
 " Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
       \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" Использовать [g и ]g для навигации по диагностике
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" Переход к определению кода
+" GoTo code navigation
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-" Использовать K для показа документации в окне предпросмотра
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+" Use K to show documentation in preview window
+nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= -1)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
-    execute '!' . &keywordprg . " " . expand('<cword>')
+    call feedkeys('K', 'in')
   endif
 endfunction
 
-" Подсвечивать символ и его ссылки при удержании курсора
+" Highlight the symbol and its references when holding the cursor
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Переименование символов
+" Symbol renaming
 nmap <leader>rn <Plug>(coc-rename)
 
-" Форматирование выделенного кода
+" Formatting selected code
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
-" Настройка formatexpr для определенных типов файлов
-autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s)
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
 
-" Обновление справки по подписи при переходе к заполнительному символу
-autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+" Applying code actions to the selected code block
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
 
+" Remap keys for applying code actions at the cursor position
+nmap <leader>ac  <Plug>(coc-codeaction-cursor)
+" Remap keys for apply code actions affect whole buffer
+nmap <leader>as  <Plug>(coc-codeaction-source)
+" Apply the most preferred quickfix action to fix diagnostic on the current line
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Remap keys for applying refactor code actions
+nmap <silent> <leader>re <Plug>(coc-codeaction-refactor)
+xmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+nmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+
+" Run the Code Lens action on the current line
+nmap <leader>cl  <Plug>(coc-codelens-action)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Remap <C-f> and <C-b> to scroll float windows/popups
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+" Use CTRL-S for selections ranges
+" Requires 'textDocument/selectionRange' support of language server
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Add `:Format` command to format current buffer
+command! -nargs=0 Format :call CocActionAsync('format')
+
+" Add `:Fold` command to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer
+command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+" Add (Neo)Vim's native statusline support
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Mappings for CoCList
+" Show all diagnostics
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 " Set the leader key
 let mapleader = ","
 
@@ -233,4 +478,5 @@ nnoremap <A-f> =G<CR>
 " Toggle comment with Ctrl+/
 nnoremap <silent> <C-_> :call nerdcommenter#Comment('n', 'toggle')<CR>
 vnoremap <silent> <C-_> :call nerdcommenter#Comment('x', 'toggle')<CR>
+
 
